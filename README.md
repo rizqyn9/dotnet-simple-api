@@ -1,4 +1,4 @@
-# 🧩 SampleApi — ASP.NET Core Clean API Boilerplate
+# 🧩 SimpleApi — ASP.NET Core Clean API Boilerplate
 
 > A clean, modular ASP.NET Core 8 Web API template with FluentValidation, JWT Auth, PostgreSQL, API Versioning, and CI/CD via GitHub Actions.
 
@@ -23,7 +23,7 @@ Built by **RizeForge** ⚙️ — a DevOps-driven engineering brand focusing on 
 
 ```
 
-SampleApi/
+dotnet-simple-api/
 │
 ├── Controllers/
 │ ├── AuthController.cs
@@ -111,15 +111,15 @@ Swagger will open automatically at:
 ## 🐳 Docker Build & Run
 
 ```bash
-docker build -t sampleapi:latest .
-docker run -d -p 5229:8080 sampleapi:latest
+docker build -t dotnet-simple-api:latest .
+docker run -d -p 5229:8080 dotnet-simple-api:latest
 ```
 
 Or pull from GHCR:
 
 ```bash
-docker pull ghcr.io/rizqyn9/sampleapi:latest
-docker run -d -p 5229:8080 ghcr.io/rizqyn9/sampleapi:latest
+docker pull ghcr.io/rizqyn9/dotnet-simple-api:latest
+docker run -d -p 5229:8080 ghcr.io/rizqyn9/dotnet-simple-api:latest
 ```
 
 ---
@@ -170,14 +170,14 @@ http://localhost:5229/swagger/v2/swagger.json
 
 ## 🧰 Commands
 
-| Task             | Command                                           |
-| ---------------- | ------------------------------------------------- |
-| Build            | `dotnet build`                                    |
-| Run              | `dotnet run`                                      |
-| Apply migrations | `dotnet ef database update`                       |
-| Create migration | `dotnet ef migrations add <Name>`                 |
-| Docker build     | `docker build -t sampleapi:latest .`              |
-| Push to GHCR     | `docker push ghcr.io/<username>/sampleapi:latest` |
+| Task             | Command                                                |
+| ---------------- | ------------------------------------------------------ |
+| Build            | `dotnet build`                                         |
+| Run              | `dotnet run`                                           |
+| Apply migrations | `dotnet ef database update`                            |
+| Create migration | `dotnet ef migrations add <Name>`                      |
+| Docker build     | `docker build -t dotnet-simple-api:latest .`           |
+| Push to GHCR     | `docker push ghcr.io/rizqyn9/dotnet-simple-api:latest` |
 
 ---
 
