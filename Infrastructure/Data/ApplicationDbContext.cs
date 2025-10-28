@@ -19,9 +19,9 @@ namespace SampleApi.Infrastructure.Data
       base.OnModelCreating(builder);
 
       builder
-              .Entity<User>()
-              .Property(u => u.Role)
-              .HasConversion(new SnakeCaseEnumConverter<UserRole>());
+          .Entity<User>()
+          .Property(u => u.Role)
+          .HasConversion(new SnakeCaseEnumConverter<UserRole>());
 
       // Apply snake_case naming convention globally
       builder.UseSnakeCaseNames();

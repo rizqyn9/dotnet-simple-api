@@ -19,6 +19,12 @@ namespace SampleApi.Presentation.Common.Exceptions
       : base(message, code, StatusCodes.Status409Conflict) { }
   }
 
+  public class NotFoundException : ApiException
+  {
+    public NotFoundException(string message, string code = "NOT_FOUND")
+      : base(message, code, StatusCodes.Status404NotFound) { }
+  }
+
   public class ValidationException : ApiException
   {
     public Dictionary<string, string[]> Errors { get; }

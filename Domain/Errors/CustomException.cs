@@ -8,7 +8,7 @@ public class CustomException : Exception
   public int StatusCode { get; }
 
   public CustomException(string message, string code, int statusCode = (int)HttpStatusCode.BadRequest)
-      : base(message)
+  : base(message)
   {
     Code = code;
     StatusCode = statusCode;

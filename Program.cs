@@ -1,71 +1,93 @@
-using System.Text;
-
-using FluentValidation;
-using FluentValidation.AspNetCore;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
-using SampleApi.Application.Services;
-using SampleApi.Application.Validators;
 using SampleApi.Infrastructure.Data;
-using SampleApi.Infrastructure.Repositories;
-using SampleApi.Presentation.Configurations.Swagger;
+using SampleApi.Presentation.Configurations.Logging;
 using SampleApi.Presentation.Extensions;
 using SampleApi.Presentation.Middlewares;
 
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-  .WriteTo.Console()
-  .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
-  .CreateLogger();
-
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services
-  .AddInfrastructureServices(builder.Configuration)
-  .AddApplicationServices()
-  .AddPresentationLayer(builder.Configuration);
-
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
+try
 {
-  var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-  db.Database.Migrate();
-}
+  Log.Information("Starting up Sample API...");
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+  var builder = WebApplication.CreateBuilder(args);
 
-if (app.Environment.IsDevelopment())
-{
-  app.UseSwagger();
-  app.UseSwaggerUI(options =>
+  SerilogSetup.ConfigureSerilog(builder);
+
+  builder.Services
+      .AddInfrastructureServices(builder.Configuration)
+      .AddApplicationServices()
+      .AddPresentationLayer(builder.Configuration);
+
+  var app = builder.Build();
+
+  // Run EF Core migrations
+  using (var scope = app.Services.CreateScope())
   {
-    var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-    foreach (var description in apiVersionProvider.ApiVersionDescriptions)
+    try
     {
-      options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-            description.GroupName.ToUpperInvariant());
+      var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+      db.Database.Migrate();
+      Log.Information("✅ Database migration completed successfully.");
     }
+    catch (Exception ex)
+    {
+      Log.Error(ex, "❌ An error occurred while applying database migrations.");
+    }
+  }
 
-    options.DocumentTitle = "Sample API Docs";
-    options.RoutePrefix = string.Empty;
-  });
 
-  app.MapGet("/swagger/index.html", context =>
+  // Middleware pipeline
+  app.UseSerilogRequestLogging();
+  app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+  app.UseHttpsRedirection();
+  app.UseCors("DefaultPolicy");
+
+  app.UseAuthentication();
+  app.UseAuthorization();
+
+  // Swagger for dev + staging
+  if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
   {
-    context.Response.Redirect("/");
-    return Task.CompletedTask;
-  });
-}
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+      var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
-app.MapControllers();
-app.Run();
+      foreach (var description in provider.ApiVersionDescriptions)
+      {
+        options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant()
+            );
+      }
+
+      options.DocumentTitle = "Sample API Documentation";
+      options.RoutePrefix = string.Empty;
+    });
+
+    app.MapGet("/swagger/index.html", context =>
+    {
+      context.Response.Redirect("/", permanent: true);
+      return Task.CompletedTask;
+    });
+  }
+
+  app.MapControllers();
+
+  app.Run();
+
+  Log.Information("✅ Sample API started successfully.");
+}
+catch (Exception ex)
+{
+  Log.Fatal(ex, "❌ API terminated unexpectedly during startup.");
+}
+finally
+{
+  Log.Information("Shutting down Sample API...");
+  Log.CloseAndFlush();
+}

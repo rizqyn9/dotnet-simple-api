@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SampleApi.Application.DTOs;
 using SampleApi.Domain.Models;
 using SampleApi.Infrastructure.Repositories;
+using SampleApi.Presentation.Common.Exceptions;
 using SampleApi.Presentation.Common.Responses;
 
 
@@ -76,9 +77,7 @@ namespace SampleApi.Controllers.V2
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-      var user = await _repo.GetByIdAsync(id);
-      if (user == null)
-        return NotFound(ApiResponse<string>.Fail("User not found."));
+      var user = await _repo.GetByIdAsync(id) ?? throw new NotFoundException("User not found.");
 
       var dto = new UserDto
       {
@@ -87,7 +86,8 @@ namespace SampleApi.Controllers.V2
         Role = user.Role.ToString().ToLower()
       };
 
-      return Ok(ApiResponse<UserDto>.SuccessResponse(dto, "User retrieved successfully."));
+      // return Ok(ApiResponse<UserDto>.SuccessResponse(dto, "User retrieved successfully."));
+      return Ok(ResponseFactory.Success(dto, "User retrieved successfully."));
     }
 
     // ✅ Create user

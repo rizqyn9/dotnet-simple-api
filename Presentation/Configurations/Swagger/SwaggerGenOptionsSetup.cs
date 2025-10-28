@@ -23,7 +23,12 @@ namespace SampleApi.Presentation.Configurations.Swagger
         {
           Title = "Sample API",
           Version = description.ApiVersion.ToString(),
-          Description = "Multi-version ASP.NET Core API with JWT & Swagger"
+          Description = "A versioned ASP.NET Core API with JWT authentication and Swagger documentation",
+          Contact = new OpenApiContact
+          {
+            Name = "RizeForge DevOps Team",
+            Url = new Uri("https://rizeforge.dev")
+          }
         });
       }
 
@@ -34,7 +39,7 @@ namespace SampleApi.Presentation.Configurations.Swagger
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter JWT token like: Bearer {your token}"
+        Description = "Enter a valid JWT token as: Bearer {your_token}"
       });
 
       options.AddSecurityRequirement(new OpenApiSecurityRequirement

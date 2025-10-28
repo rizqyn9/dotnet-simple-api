@@ -11,36 +11,41 @@ namespace SampleApi.Presentation.Filters
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-      if (context.Result is ObjectResult objectResult)
+      if (context.Result is not ObjectResult objectResult)
+        return;
+
+      var value = objectResult.Value;
+      if (value == null)
+        return;
+
+      var traceId = context.HttpContext.TraceIdentifier;
+      var valueType = value.GetType();
+
+      if (IsAlreadyWrapped(valueType))
       {
-        var valueType = objectResult.Value?.GetType();
-        var httpContext = context.HttpContext;
-        var traceId = httpContext.TraceIdentifier;
-
-        if (valueType == null)
-          return;
-
-        if (valueType.IsGenericType &&
-            valueType.GetGenericTypeDefinition() == typeof(ApiResponse<>))
-        {
-          var traceIdProp = valueType.GetProperty("TraceId");
-          traceIdProp?.SetValue(objectResult.Value, traceId);
-          return;
-        }
-
-        if (valueType == typeof(ErrorResponse))
-        {
-          var traceIdProp = valueType.GetProperty("TraceId");
-          traceIdProp?.SetValue(objectResult.Value, traceId);
-          return;
-        }
-
-        var wrapped = ApiResponse<object>.SuccessResponse(objectResult.Value!, traceId: traceId);
-        context.Result = new ObjectResult(wrapped)
-        {
-          StatusCode = objectResult.StatusCode
-        };
+        SetTraceId(value, valueType, traceId);
+        return;
       }
+
+      var wrapped = ResponseFactory.Success(value, traceId: traceId);
+      context.Result = new ObjectResult(wrapped)
+      {
+        StatusCode = objectResult.StatusCode
+      };
+    }
+
+    private static bool IsAlreadyWrapped(Type valueType)
+    {
+      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(ApiResponse<>))
+        return true;
+
+      return valueType == typeof(ErrorResponse);
+    }
+
+    private static void SetTraceId(object target, Type targetType, string traceId)
+    {
+      var traceIdProperty = targetType.GetProperty(nameof(BaseResponse.TraceId));
+      traceIdProperty?.SetValue(target, traceId);
     }
   }
 }

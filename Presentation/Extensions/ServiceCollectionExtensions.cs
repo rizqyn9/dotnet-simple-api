@@ -24,8 +24,10 @@ namespace SampleApi.Presentation.Extensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-      services.AddDbContext<ApplicationDbContext>(options =>
-          options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+      var connectionString = configuration.GetConnectionString("DefaultConnection")
+          ?? throw new InvalidOperationException("Database connection string not found.");
+
+      services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
       services.AddScoped<IUserRepository, UserRepository>();
 
@@ -41,8 +43,26 @@ namespace SampleApi.Presentation.Extensions
 
     public static IServiceCollection AddPresentationLayer(this IServiceCollection services, IConfiguration configuration)
     {
-      // JWT setup
-      var jwtKey = configuration["Jwt:Key"]!;
+
+      services.AddJwtAuthentication(configuration)
+            .AddControllersWithFilters()
+            .AddValidation()
+            .AddApiVersioningAndSwagger();
+
+      return services;
+    }
+
+    private static IServiceCollection AddJwtAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+      var jwtKey = configuration["Jwt:Key"]
+          ?? throw new InvalidOperationException("JWT Key not configured.");
+      var issuer = configuration["Jwt:Issuer"]
+          ?? throw new InvalidOperationException("JWT Issuer not configured.");
+      var audience = configuration["Jwt:Audience"]
+          ?? throw new InvalidOperationException("JWT Audience not configured.");
+
       var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
       services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -53,34 +73,49 @@ namespace SampleApi.Presentation.Extensions
                   ValidateIssuer = true,
                   ValidateAudience = true,
                   ValidateIssuerSigningKey = true,
-                  ValidIssuer = configuration["Jwt:Issuer"],
-                  ValidAudience = configuration["Jwt:Audience"],
+                  ValidIssuer = issuer,
+                  ValidAudience = audience,
                   IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
                 };
               });
 
+      return services;
+    }
+
+    private static IServiceCollection AddControllersWithFilters(this IServiceCollection services)
+    {
       services.AddRouting(options => options.LowercaseUrls = true);
       services.AddControllers(options =>
       {
+        // Global response wrapper
         options.Filters.Add<ApiResponseWrapperFilter>();
       });
 
-      // Validation setup
+      return services;
+    }
+
+    private static IServiceCollection AddValidation(this IServiceCollection services)
+    {
       services.ConfigureValidationResponse();
       services.AddFluentValidationAutoValidation();
       services.AddFluentValidationClientsideAdapters();
       services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
+      return services;
+    }
 
-      // Swagger + API versioning
+    private static IServiceCollection AddApiVersioningAndSwagger(this IServiceCollection services)
+    {
       services.AddEndpointsApiExplorer();
       services.AddSwaggerGen();
       services.ConfigureOptions<SwaggerGenOptionsSetup>();
+
       services.AddApiVersioning(options =>
       {
         options.DefaultApiVersion = new ApiVersion(1, 0);
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ReportApiVersions = true;
       });
+
       services.AddVersionedApiExplorer(options =>
       {
         options.GroupNameFormat = "'v'VVV";

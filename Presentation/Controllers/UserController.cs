@@ -77,7 +77,7 @@ namespace SampleApi.Presentation.Controllers
     {
       var user = await _repo.GetByIdAsync(id);
       if (user == null)
-        return NotFound(ApiResponse<string>.Fail("User not found."));
+        return NotFound(ResponseFactory.Failure<string>("User not found."));
 
       var dto = new UserDto
       {
@@ -86,7 +86,7 @@ namespace SampleApi.Presentation.Controllers
         Role = user.Role.ToString().ToLower()
       };
 
-      return Ok(ApiResponse<UserDto>.SuccessResponse(dto, "User fetched successfully."));
+      return Ok(ResponseFactory.Success(dto, "User fetched successfully."));
     }
 
     // ✅ Create user
