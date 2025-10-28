@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using SampleApi.Data.Converters;
 using SampleApi.Data.Extensions;
 using SampleApi.Extensions;

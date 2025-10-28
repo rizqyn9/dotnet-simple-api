@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
 using SampleApi.Extensions;
 
 namespace SampleApi.Data.Extensions

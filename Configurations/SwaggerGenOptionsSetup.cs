@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SampleApi.Configurations
@@ -26,7 +27,6 @@ namespace SampleApi.Configurations
         });
       }
 
-      // ✅ Add JWT support
       options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
       {
         Name = "Authorization",
@@ -38,19 +38,20 @@ namespace SampleApi.Configurations
       });
 
       options.AddSecurityRequirement(new OpenApiSecurityRequirement
+      {
+        {
+          new OpenApiSecurityScheme
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
+              Reference = new OpenApiReference
+              {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+              }
+            },
+          Array.Empty<string>()
+        }
+      });
+
     }
   }
 }
