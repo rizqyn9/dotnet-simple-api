@@ -14,31 +14,33 @@ namespace SampleApi.Presentation.Filters
       if (context.Result is ObjectResult objectResult)
       {
         var valueType = objectResult.Value?.GetType();
+        var httpContext = context.HttpContext;
+        var traceId = httpContext.TraceIdentifier;
 
         if (valueType == null)
           return;
 
-        // Skip wrapping if already ApiResponse<T>
         if (valueType.IsGenericType &&
             valueType.GetGenericTypeDefinition() == typeof(ApiResponse<>))
         {
+          var traceIdProp = valueType.GetProperty("TraceId");
+          traceIdProp?.SetValue(objectResult.Value, traceId);
           return;
         }
 
-        // Skip wrapping if it's an ErrorResponse
         if (valueType == typeof(ErrorResponse))
         {
+          var traceIdProp = valueType.GetProperty("TraceId");
+          traceIdProp?.SetValue(objectResult.Value, traceId);
           return;
         }
 
-        // Otherwise wrap as ApiResponse<object>
-        var wrapped = ApiResponse<object>.SuccessResponse(objectResult.Value!);
+        var wrapped = ApiResponse<object>.SuccessResponse(objectResult.Value!, traceId: traceId);
         context.Result = new ObjectResult(wrapped)
         {
           StatusCode = objectResult.StatusCode
         };
       }
     }
-
   }
 }

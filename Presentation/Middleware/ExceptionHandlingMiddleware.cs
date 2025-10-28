@@ -18,13 +18,14 @@ namespace SampleApi.Presentation.Middlewares
 
     public async Task InvokeAsync(HttpContext context)
     {
+      var traceId = context.TraceIdentifier;
       try
       {
         await _next(context);
       }
       catch (ApiException ex)
       {
-        _logger.LogWarning(ex, "Handled API exception");
+        _logger.LogWarning(ex, "Handled API exception ({TraceId})", traceId);
         context.Response.StatusCode = ex.StatusCode;
         context.Response.ContentType = "application/json";
 
@@ -32,21 +33,23 @@ namespace SampleApi.Presentation.Middlewares
         {
           Message = ex.Message,
           Code = ex.Code,
-          Fields = ex is ValidationException vex ? vex.Errors : null
+          Fields = ex is ValidationException vex ? vex.Errors : null,
+          TraceId = traceId
         };
 
         await context.Response.WriteAsJsonAsync(response);
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "Unhandled exception");
+        _logger.LogError(ex, "Unhandled exception ({TraceId})", traceId);
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         context.Response.ContentType = "application/json";
 
         var response = new ErrorResponse
         {
           Message = "An unexpected error occurred.",
-          Code = "INTERNAL_SERVER_ERROR"
+          Code = "INTERNAL_SERVER_ERROR",
+          TraceId = traceId
         };
 
         await context.Response.WriteAsJsonAsync(response);

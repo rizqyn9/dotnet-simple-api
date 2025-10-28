@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 using SampleApi.Presentation.Common.Responses;
 
@@ -7,9 +6,9 @@ namespace SampleApi.Presentation.Configurations
 {
   public static class ValidationProblemDetailsSetup
   {
-    public static IMvcBuilder ConfigureValidationResponse(this IMvcBuilder builder)
+    public static IServiceCollection ConfigureValidationResponse(this IServiceCollection services)
     {
-      builder.Services.Configure<ApiBehaviorOptions>(options =>
+      services.Configure<ApiBehaviorOptions>(options =>
       {
         options.InvalidModelStateResponseFactory = context =>
         {
@@ -20,19 +19,21 @@ namespace SampleApi.Presentation.Configurations
               kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
             );
 
+          var traceId = context.HttpContext.TraceIdentifier;
+
           var response = new ErrorResponse
           {
-            Success = false,
             Message = "Validation failed.",
             Code = "VALIDATION_FAILED",
-            Fields = errors
+            Fields = errors,
+            TraceId = traceId
           };
 
           return new BadRequestObjectResult(response);
         };
       });
 
-      return builder;
+      return services;
     }
   }
 }

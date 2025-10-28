@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 using SampleApi.Presentation.Configurations;
 using SampleApi.Presentation.Filters;
 
@@ -12,9 +10,9 @@ namespace SampleApi.Presentation.Extensions
       services.AddControllers(options =>
       {
         options.Filters.Add<ApiResponseWrapperFilter>();
-      })
-      .ConfigureValidationResponse();
+      });
 
+      services.ConfigureValidationResponse();
       return services;
     }
   }
