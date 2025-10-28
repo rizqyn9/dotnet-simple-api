@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SampleApi.Domain.Models;
 using SampleApi.Infrastructure.Data;
 
-
-namespace SampleApi.Controllers
+namespace SampleApi.Presentation.Controllers
 {
   [ApiController]
   [ApiVersion("1.0")]

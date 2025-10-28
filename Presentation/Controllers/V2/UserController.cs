@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SampleApi.Application.DTOs;
 using SampleApi.Domain.Models;
 using SampleApi.Infrastructure.Repositories;
+using SampleApi.Presentation.Common.Responses;
 
 
 namespace SampleApi.Controllers.V2

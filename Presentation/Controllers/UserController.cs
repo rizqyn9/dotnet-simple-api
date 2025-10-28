@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using SampleApi.Application.DTOs;
 using SampleApi.Domain.Models;
 using SampleApi.Infrastructure.Repositories;
+using SampleApi.Presentation.Common.Exceptions;
+using SampleApi.Presentation.Common.Responses;
 
-namespace SampleApi.Controllers
+namespace SampleApi.Presentation.Controllers
 {
   [ApiController]
   [ApiVersion("1.0")]
@@ -55,7 +57,6 @@ namespace SampleApi.Controllers
       return Ok(dto);
     }
 
-    // ✅ Public endpoint (for dev/testing)
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -70,8 +71,8 @@ namespace SampleApi.Controllers
       return Ok(dto);
     }
 
-    // ✅ Get by ID
     [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(ApiResponse<UserDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(int id)
     {
       var user = await _repo.GetByIdAsync(id);
@@ -85,15 +86,21 @@ namespace SampleApi.Controllers
         Role = user.Role.ToString().ToLower()
       };
 
-      return Ok(ApiResponse<UserDto>.SuccessResponse(dto, "User retrieved successfully."));
+      return Ok(ApiResponse<UserDto>.SuccessResponse(dto, "User fetched successfully."));
     }
 
     // ✅ Create user
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
+      if (dto.Username == "test")
+        throw new ConflictException("Username already exists", "NAME_CONFLICT");
+
       if (string.IsNullOrWhiteSpace(dto.Password))
-        return BadRequest("Password is required.");
+        throw new ValidationException(new()
+        {
+          ["password"] = ["Password is required."]
+        });
 
       var passwordHash = HashPassword(dto.Password);
 

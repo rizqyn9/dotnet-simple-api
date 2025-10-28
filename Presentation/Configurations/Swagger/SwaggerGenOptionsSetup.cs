@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace SampleApi.Configurations
+namespace SampleApi.Presentation.Configurations.Swagger
 {
   public class SwaggerGenOptionsSetup : IConfigureOptions<SwaggerGenOptions>
   {
@@ -52,6 +52,7 @@ namespace SampleApi.Configurations
         }
       });
 
+      options.SchemaFilter<ApiResponseSchemaFilter>();
     }
   }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SampleApi.Application.DTOs;
 using SampleApi.Application.Services;
 
-namespace SampleApi.Controllers
+namespace SampleApi.Presentation.Controllers
 {
   [ApiController]
   [ApiVersion("1.0")]

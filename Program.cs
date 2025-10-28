@@ -11,11 +11,12 @@ using Microsoft.IdentityModel.Tokens;
 
 using SampleApi.Application.Services;
 using SampleApi.Application.Validators;
-using SampleApi.Configurations;
 using SampleApi.Infrastructure.Data;
 using SampleApi.Infrastructure.Repositories;
-using SampleApi.Middleware;
-
+using SampleApi.Presentation.Configurations.Swagger;
+using SampleApi.Presentation.Extensions;
+using SampleApi.Presentation.Filters;
+using SampleApi.Presentation.Middlewares;
 
 using Serilog;
 
@@ -69,7 +70,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Controllers + Validation
-builder.Services.AddControllers();
+builder.Services.AddPresentationControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
@@ -79,7 +80,6 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -88,10 +88,9 @@ using (var scope = app.Services.CreateScope())
   db.Database.Migrate();
 }
 
-app.UseMiddleware<ErrorHandlingMiddleware>();
-
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -118,5 +117,4 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-
 app.Run();
