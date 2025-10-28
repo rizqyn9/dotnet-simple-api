@@ -15,7 +15,6 @@ using SampleApi.Infrastructure.Data;
 using SampleApi.Infrastructure.Repositories;
 using SampleApi.Presentation.Configurations.Swagger;
 using SampleApi.Presentation.Extensions;
-using SampleApi.Presentation.Filters;
 using SampleApi.Presentation.Middlewares;
 
 using Serilog;
@@ -27,58 +26,10 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRouting(options => options.LowercaseUrls = true);
-
-// Add JWT Auth
-var jwtKey = builder.Configuration["Jwt:Key"]!;
-var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
-
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-      options.TokenValidationParameters = new TokenValidationParameters
-      {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
-      };
-    });
-
-builder.Services.AddApiVersioning(options =>
-{
-  options.DefaultApiVersion = new ApiVersion(1, 0);
-  options.AssumeDefaultVersionWhenUnspecified = true;
-  options.ReportApiVersions = true;
-});
-
-builder.Services.AddVersionedApiExplorer(options =>
-{
-  options.GroupNameFormat = "'v'VVV";
-  options.SubstituteApiVersionInUrl = true;
-});
-
-// Add Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.ConfigureOptions<SwaggerGenOptionsSetup>();
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Controllers + Validation
-builder.Services.AddPresentationControllers();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
-
-// Dependency Injection
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+  .AddInfrastructureServices(builder.Configuration)
+  .AddApplicationServices()
+  .AddPresentationLayer(builder.Configuration);
 
 var app = builder.Build();
 
