@@ -8,15 +8,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
+using SampleApi.Application.Services;
+using SampleApi.Application.Validators;
 using SampleApi.Configurations;
-using SampleApi.Data;
+using SampleApi.Infrastructure.Data;
+using SampleApi.Infrastructure.Repositories;
 using SampleApi.Middleware;
-using SampleApi.Repositories;
-using SampleApi.Services;
-using SampleApi.Validators;
 
+
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+  .WriteTo.Console()
+  .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+  .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,9 +110,9 @@ if (app.Environment.IsDevelopment())
     options.RoutePrefix = string.Empty;
   });
 
-  app.MapGet("/", context =>
+  app.MapGet("/swagger/index.html", context =>
   {
-    context.Response.Redirect("/swagger/index.html");
+    context.Response.Redirect("/");
     return Task.CompletedTask;
   });
 }

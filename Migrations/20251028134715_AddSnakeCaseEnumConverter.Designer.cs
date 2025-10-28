@@ -3,86 +3,88 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SampleApi.Data;
+
+using SampleApi.Infrastructure.Data;
 
 #nullable disable
 
 namespace SampleApi.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251028134715_AddSnakeCaseEnumConverter")]
-    partial class AddSnakeCaseEnumConverter
+  [DbContext(typeof(ApplicationDbContext))]
+  [Migration("20251028134715_AddSnakeCaseEnumConverter")]
+  partial class AddSnakeCaseEnumConverter
+  {
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+      modelBuilder
+          .HasAnnotation("ProductVersion", "9.0.10")
+          .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+      NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SampleApi.Models.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+      modelBuilder.Entity("SampleApi.Models.Employee", b =>
+          {
+            b.Property<int>("Id")
+                      .ValueGeneratedOnAdd()
+                      .HasColumnType("integer")
+                      .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+            b.Property<string>("Name")
+                      .IsRequired()
+                      .HasColumnType("text")
+                      .HasColumnName("name");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("position");
+            b.Property<string>("Position")
+                      .IsRequired()
+                      .HasColumnType("text")
+                      .HasColumnName("position");
 
-                    b.Property<decimal>("Salary")
-                        .HasColumnType("numeric")
-                        .HasColumnName("salary");
+            b.Property<decimal>("Salary")
+                      .HasColumnType("numeric")
+                      .HasColumnName("salary");
 
-                    b.HasKey("Id");
+            b.HasKey("Id");
 
-                    b.ToTable("employees");
-                });
+            b.ToTable("employees");
+          });
 
-            modelBuilder.Entity("SampleApi.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+      modelBuilder.Entity("SampleApi.Models.User", b =>
+          {
+            b.Property<int>("Id")
+                      .ValueGeneratedOnAdd()
+                      .HasColumnType("integer")
+                      .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("passwordhash");
+            b.Property<string>("PasswordHash")
+                      .IsRequired()
+                      .HasColumnType("text")
+                      .HasColumnName("passwordhash");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("role");
+            b.Property<string>("Role")
+                      .IsRequired()
+                      .HasMaxLength(50)
+                      .HasColumnType("character varying(50)")
+                      .HasColumnName("role");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("username");
+            b.Property<string>("Username")
+                      .IsRequired()
+                      .HasMaxLength(100)
+                      .HasColumnType("character varying(100)")
+                      .HasColumnName("username");
 
-                    b.HasKey("Id");
+            b.HasKey("Id");
 
-                    b.ToTable("users");
-                });
+            b.ToTable("users");
+          });
 #pragma warning restore 612, 618
-        }
     }
+  }
 }
