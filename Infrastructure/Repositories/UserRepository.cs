@@ -19,7 +19,7 @@ namespace SampleApi.Infrastructure.Repositories
       return await _context.Users.AsNoTracking().ToListAsync();
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<User?> GetByIdAsync(Guid id)
     {
       return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
     }
@@ -31,7 +31,7 @@ namespace SampleApi.Infrastructure.Repositories
       return user;
     }
 
-    public async Task<User?> UpdateAsync(int id, User updatedUser)
+    public async Task<User?> UpdateAsync(Guid id, User updatedUser)
     {
       var existing = await _context.Users.FindAsync(id);
       if (existing == null) return null;

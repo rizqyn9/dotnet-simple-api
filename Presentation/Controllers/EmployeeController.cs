@@ -45,9 +45,9 @@ namespace SampleApi.Presentation.Controllers
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
+    public async Task<IActionResult> UpdateEmployee(Guid id, Employee employee)
     {
-      if (id != employee.Id)
+      if (employee.Id.Equals(id))
         return BadRequest();
 
       _context.Entry(employee).State = EntityState.Modified;

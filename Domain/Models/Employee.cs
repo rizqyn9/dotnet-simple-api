@@ -1,20 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace SampleApi.Domain.Models
 {
-  [Table("employees")]
   public class Employee
   {
-    [Column("id")]
-    public int Id { get; set; } // Primary Key
+    public Guid Id { get; set; }
+    public string FullName { get; set; } = default!;
+    public DateTime HireDate { get; set; }
 
-    [Column("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [Column("position")]
-    public string Position { get; set; } = string.Empty;
-
-    [Column("salary")]
-    public decimal Salary { get; set; }
+    public User? User { get; set; }
   }
 }

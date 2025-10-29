@@ -18,18 +18,27 @@ namespace SampleApi.Infrastructure.Data
     {
       base.OnModelCreating(builder);
 
-      builder
-          .Entity<User>()
-          .Property(u => u.Role)
-          .HasConversion(new SnakeCaseEnumConverter<UserRole>());
+      // One-to-One: User ↔ Employee
+      builder.Entity<User>()
+          .HasOne(u => u.Employee)
+          .WithOne(e => e.User)
+          .HasForeignKey<User>(u => u.EmployeeId)
+          .OnDelete(DeleteBehavior.Cascade);
+
+      // Many-to-One: User → Role
+      builder.Entity<User>()
+          .HasOne(u => u.Role)
+          .WithMany(r => r.Users)
+          .HasForeignKey(u => u.RoleId)
+          .OnDelete(DeleteBehavior.Restrict);
 
       // Apply snake_case naming convention globally
       builder.UseSnakeCaseNames();
-
     }
 
-    public DbSet<Employee> Employees { get; set; }
-    public DbSet<User> Users { get; set; }
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
 
   }
 }

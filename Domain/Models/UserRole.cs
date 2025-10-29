@@ -1,10 +1,10 @@
 namespace SampleApi.Domain.Models
 {
-  public enum UserRole
+  public class UserRole
   {
-    User = 0,
-    Admin = 1,
-    Manager = 2,
-    Guest = 3
+    public Guid Id { get; set; }
+    public string Name { get; set; } = default!;
+
+    public ICollection<User> Users { get; set; } = [];
   }
 }

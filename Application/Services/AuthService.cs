@@ -44,7 +44,7 @@ namespace SampleApi.Application.Services
         Username = username,
         Email = email,
         PasswordHash = hashed,
-        Role = Enum.TryParse<UserRole>(role, true, out var parsedRole) ? parsedRole : UserRole.User
+        Role = null!
       };
 
       _context.Users.Add(newUser);
@@ -77,7 +77,7 @@ namespace SampleApi.Application.Services
       {
         Token = new JwtSecurityTokenHandler().WriteToken(token),
         Username = user.Username,
-        Role = user.Role.ToString().ToLower()
+        Role = user.Role?.ToString()?.ToLower() ?? "user"
       };
     }
 
